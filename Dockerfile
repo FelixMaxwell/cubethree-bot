@@ -5,7 +5,7 @@ WORKDIR /
 
 RUN pip install -r req.txt
 
-ADD . /app
+ADD ./src /app
 WORKDIR /app
 
 CMD ["python", "core.py"]
