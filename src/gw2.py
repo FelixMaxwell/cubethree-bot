@@ -10,12 +10,13 @@ def add_hooks(client, table):
 	loop = asyncio.get_event_loop()
 	future = loop.create_task(schedule_dailies(client))
 
-@asyncio.coroutine
-def daily(client, message):
-	yield from client.send_message(message.channel, daily_string())
+async def daily(client, message):
+	await daily_message(client, message.channel)
 
-def daily_string():
-	return "\n".join(["***New set of dailies for you, hot off the presses***"] + list(get_dailies()))
+async def daily_message(client, channel):
+	tmp = await client.send_message(channel, "Fetching dailies...")
+	s = "\n".join(["***New set of dailies for you, hot off the presses***"] + list(get_dailies()))
+	await client.edit_message(tmp, s)
 
 def get_dailies():
 	request = urlreq.Request("https://api.guildwars2.com/v2/achievements/daily")
@@ -33,10 +34,9 @@ def get_next_reset():
 	now = datetime.datetime.utcnow()
 	return ((24 - now.hour)*60 + 1 - now.minute)*60 - now.second
 
-@asyncio.coroutine
-def schedule_dailies(client):
+async def schedule_dailies(client):
 	while True:
-		yield from asyncio.sleep(get_next_reset())
-		yield from client.send_message(client.get_channel("379181829560991744"), daily_string())
+		await asyncio.sleep(get_next_reset())
+		await daily_message(client, client.get_channel("379181829560991744"))
 
 loop = asyncio.get_event_loop()
