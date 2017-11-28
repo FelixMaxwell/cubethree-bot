@@ -10,9 +10,13 @@ hooks = dict()
 import gw2
 import test
 import rando
+import translate
+import inspire
 gw2.add_hooks(client, hooks)
 test.add_hooks(client, hooks)
 rando.add_hooks(client, hooks)
+translate.add_hooks(client, hooks)
+inspire.add_hooks(client, hooks)
 
 async def get_info(client, message):
 	await client.send_message(message.channel, "Cubethree Bot v{}\n{} commands registered.".format(version, len(hooks)))
