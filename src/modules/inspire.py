@@ -3,9 +3,9 @@ import urllib.request as urlreq
 import asyncio
 
 def add_hooks(client, table):
-	table["!inspire"] = inspire
+	table["inspire"] = inspire
 
-async def inspire(client, message):
+async def inspire(args, client, message):
 	tmp = await client.send_message(message.channel, "Fetching image...")
 	request = urlreq.Request("http://inspirobot.me/api?generate=true")
 	request.add_header("Host", "inspirobot.me")

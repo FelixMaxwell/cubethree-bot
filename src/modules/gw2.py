@@ -5,12 +5,12 @@ import asyncio
 import datetime
 
 def add_hooks(client, table):
-	table["!daily"] = daily 
+	table["daily"] = daily 
 
 	loop = asyncio.get_event_loop()
 	future = loop.create_task(schedule_dailies(client))
 
-async def daily(client, message):
+async def daily(args, client, message):
 	await daily_message(client, message.channel)
 
 async def daily_message(client, channel):

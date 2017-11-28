@@ -6,9 +6,9 @@ lc = list(LANGCODES.values())
 translator = Translator()
 
 def add_hooks(client, table):
-	table["!mangle"] = mangle
+	table["mangle"] = mangle
 
-async def mangle(client, message):
+async def mangle(args, client, message):
 	tmp_msg = "Translating..."
 	tmp = await client.send_message(message.channel, tmp_msg)
 	text = message.content.replace("!mangle ", "")

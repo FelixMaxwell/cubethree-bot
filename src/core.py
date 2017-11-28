@@ -30,9 +30,9 @@ def try_import(path):
 for m in iglob("./modules/**/*.py", recursive=True):
 	try_import(".".join(m[2:].split(".")[0].split("/")))
 
-async def get_info(client, message):
+async def get_info(args, client, message):
 	await client.send_message(message.channel, "Cubethree Bot v{}\n{} commands registered.".format(version, len(hooks)))
-hooks["!info"] = get_info
+hooks["info"] = get_info
 
 from datetime import datetime
 start = datetime.now()
@@ -40,13 +40,13 @@ def get_uptime():
 	delta = datetime.now() - start
 	return delta
 
-async def uptime(client, message):
+async def uptime(args, client, message):
 	await client.send_message(message.channel, "Uptime: {}".format(get_uptime()))
-hooks["!uptime"] = uptime
+hooks["uptime"] = uptime
 
-async def updog(client, message):
+async def updog(args, client, message):
 	await client.send_message(message.channel, "Uptime: {}".format(get_uptime()*7))
-hooks["!updog"] = updog
+hooks["updog"] = updog
 
 print("Registered {} commands".format(len(hooks)), flush=True)
 
@@ -61,10 +61,15 @@ def on_ready():
 @client.event
 @asyncio.coroutine
 def on_message(message):
-	for h in hooks.keys():
-		if message.content.startswith(h):
-			yield from (hooks[h])(client, message)
-			break
+	if not message.content.startswith("!"):
+		return
+	parts = message.content.split("\n")
+	args = parts[0][1:].split(" ")
+	args += ["\n".join(parts[1:])]
+	if args[0] in hooks.keys():
+		yield from (hooks[h])(args, client, message)
+	else:
+		yield from client.send_message(message.channel, "{} is not a command".format(args[0]))
 
 with open("secret.txt") as fp:
 	client.run(fp.read().strip())
