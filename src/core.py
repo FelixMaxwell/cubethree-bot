@@ -1,5 +1,7 @@
 import discord
 import asyncio
+from importlib import import_module
+from glob import iglob
 
 version = "1.0"
 
@@ -7,16 +9,26 @@ client = discord.Client()
 
 hooks = dict()
 
-import gw2
-import test
-import rando
-import translate
-import inspire
-gw2.add_hooks(client, hooks)
-test.add_hooks(client, hooks)
-rando.add_hooks(client, hooks)
-translate.add_hooks(client, hooks)
-inspire.add_hooks(client, hooks)
+def try_import(path):
+	global hooks
+	try:
+		mod = import_module(path)
+		funcs = set(dir(mod))
+		if "add_hooks" in funcs:
+			try:
+				tmp_hooks = dict()
+				mod.add_hooks(client, tmp_hooks)
+				hooks.update(tmp_hooks)
+			except Exception as e:
+				print("Failed to add hooks to module {}".format(path))
+				print(e, flush=True)
+		print("Done loading {}".format(path), flush=True)
+	except Exception as e:
+		print("Failed to load module at {}".format(path))
+		print(e, flush=True)
+
+for m in iglob("./modules/**/*.py", recursive=True):
+	try_import(".".join(m[2:].split(".")[0].split("/")))
 
 async def get_info(client, message):
 	await client.send_message(message.channel, "Cubethree Bot v{}\n{} commands registered.".format(version, len(hooks)))
@@ -36,13 +48,15 @@ async def updog(client, message):
 	await client.send_message(message.channel, "Uptime: {}".format(get_uptime()*7))
 hooks["!updog"] = updog
 
+print("Registered {} commands".format(len(hooks)), flush=True)
+
 @client.event
 @asyncio.coroutine
 def on_ready():
 	print("Logged in as")
 	print(client.user.name)
 	print(client.user.id)
-	print("------")
+	print("------", flush=True)
 
 @client.event
 @asyncio.coroutine
