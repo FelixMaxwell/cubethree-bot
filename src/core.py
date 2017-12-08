@@ -66,10 +66,8 @@ def on_message(message):
 	parts = message.content.split("\n")
 	args = parts[0][1:].split(" ")
 	args += ["\n".join(parts[1:])]
-	if args[0] in hooks.keys():
-		yield from (hooks[h])(args, client, message)
-	else:
-		yield from client.send_message(message.channel, "{} is not a command".format(args[0]))
+	if args[0].lower() in hooks.keys():
+		yield from (hooks[args[0].lower()])(args, client, message)
 
 with open("secret.txt") as fp:
 	client.run(fp.read().strip())

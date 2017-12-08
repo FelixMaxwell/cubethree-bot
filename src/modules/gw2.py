@@ -6,20 +6,26 @@ import datetime
 
 def add_hooks(client, table):
 	table["daily"] = daily 
+	table["nextdaily"] = next_daily
 
 	loop = asyncio.get_event_loop()
 	future = loop.create_task(schedule_dailies(client))
 
+async def next_daily(args, client, message):
+	await daily_message(client, message.channel, True)
+
 async def daily(args, client, message):
 	await daily_message(client, message.channel)
 
-async def daily_message(client, channel):
-	tmp = await client.send_message(channel, "Fetching dailies...")
-	s = "\n".join(["***New set of dailies for you, hot off the presses***"] + list(get_dailies()))
+async def daily_message(client, channel, tomorrow=False):
+	tmp = await client.send_message(channel, "Fetching{} dailies...".format(" tomorrows" if tomorrow else ""))
+	s = "\n".join(["***New set of dailies for you, hot off {} presses***".format("tomorrows" if tomorrow else "the")] + list(get_dailies(tomorrow)))
 	await client.edit_message(tmp, s)
 
-def get_dailies():
+def get_dailies(tomorrow=False):
 	request = urlreq.Request("https://api.guildwars2.com/v2/achievements/daily")
+	if tomorrow:
+		request = urlreq.Request("https://api.guildwars2.com/v2/achievements/daily/tomorrow")
 	with urlreq.urlopen(request) as response:
 		string = response.read()
 		events = json.loads(string.decode("utf-8"))["pve"]
