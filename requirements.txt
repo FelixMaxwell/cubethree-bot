@@ -1,3 +1,5 @@
 discord.py
 googletrans
 mysqlclient
+requests
+beautifulsoup4
