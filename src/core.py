@@ -67,7 +67,12 @@ def on_message(message):
 	args = parts[0][1:].split(" ")
 	args += ["\n".join(parts[1:])]
 	if args[0].lower() in hooks.keys():
-		yield from (hooks[args[0].lower()])(args, client, message)
+		try:
+			yield from (hooks[args[0].lower()])(args, client, message)
+		except Exception as e:
+			print("Error!")
+			print(message.content)
+			print(e, flush=True)
 
 with open("secret.txt") as fp:
 	client.run(fp.read().strip())
